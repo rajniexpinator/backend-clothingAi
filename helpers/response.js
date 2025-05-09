@@ -1,7 +1,5 @@
 module.exports = {
   success: (code = 200, msg, data = null, success = true, extra = {}) => {
-    console.log("🚀 ~ data:", data);
-
     return {
       metadata: {
         status: code,
