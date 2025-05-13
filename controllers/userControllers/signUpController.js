@@ -3,6 +3,7 @@ const UserModel = require("../../models/userModels");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const moment = require("moment");
+const ShoppingCart = require("../../models/shoppingCartModel");
 const nodemailer = require("nodemailer");
 const smtpTransport = require("nodemailer-smtp-transport");
 const {
@@ -25,6 +26,8 @@ const transporter = nodemailer.createTransport(
 );
 
 async function UsersignUp(req, res) {
+  console.log("hiii i am called");
+
   const { password, email, ...rest } = req.body;
   const saltRounds = 10;
 
@@ -184,6 +187,13 @@ async function imageUpdate(req, res) {
     } else if (req.params.type === "savedsuits") {
       const img = await uploadBase64ToS3Bucket(req.body.image);
       const savedsuits = new SavedSuit({
+        image: img.url,
+        userId: userId,
+      });
+      await savedsuits.save();
+    } else if (req.params.type === "shopingcart") {
+      const img = await uploadBase64ToS3Bucket(req.body.image);
+      const savedsuits = new ShoppingCart({
         image: img.url,
         userId: userId,
       });
