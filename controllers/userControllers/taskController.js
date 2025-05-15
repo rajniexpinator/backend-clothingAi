@@ -5,25 +5,36 @@ const moment = require("moment");
 const axios = require("axios");
 const FormData = require("form-data");
 const fs = require("fs");
-const { uploadBase64ToS3Bucket } = require("../../config/S3ImageUpload");
+const {
+  uploadBase64ToS3Bucket,
+  uploadToS3Bucket,
+} = require("../../config/S3ImageUpload");
 require("dotenv").config();
 
 const addTask = async (req, res) => {
   try {
     const {
-      cloth_image: cloth,
-      human_image: human,
+      // cloth_image: cloth,
+      // human_image: human,
       date,
       title,
       note,
     } = req.body;
     const userId = req.user.userId;
+    console.log(req.files);
+    // const { human_image: human, cloth_image: cloth } = req.files;
+    const [human, cloth] = req.files;
+
     if (!date || !title) {
       return res.send(response.error(400, "Date and title are required"));
     }
 
-    const human_image = await uploadBase64ToS3Bucket(human);
-    const cloth_image = await uploadBase64ToS3Bucket(cloth);
+    console.log(human, cloth);
+
+    const human_image = await uploadToS3Bucket(human);
+    const cloth_image = await uploadToS3Bucket(cloth);
+    // const human_image = await uploadBase64ToS3Bucket(human);
+    // const cloth_image = await uploadBase64ToS3Bucket(cloth);
 
     const aiResponce = await imageTryOnService({
       human_image: human_image.url,
