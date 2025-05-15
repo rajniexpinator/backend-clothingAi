@@ -16,8 +16,8 @@ const transporter = nodemailer.createTransport(
   smtpTransport({
     service: "gmail",
     auth: {
-      user: process.env.NODEMAILER_EMAIL,
-      pass: process.env.NODEMAILER_PASSWORD, // Make sure this is an app password, not your actual Gmail password
+      user: "developer.expinator@gmail.com,
+      pass: "jjhj xmtn xevz bqpa", // Make sure this is an app password, not your actual Gmail password
     },
     tls: {
       rejectUnauthorized: false, // 👈 This bypasses the cert validation
