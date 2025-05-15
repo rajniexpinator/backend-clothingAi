@@ -14,8 +14,7 @@ require("dotenv").config();
 const addTask = async (req, res) => {
   try {
     const {
-      // cloth_image: cloth,
-      // human_image: human,
+      
       date,
       title,
       note,
