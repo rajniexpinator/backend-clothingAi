@@ -36,7 +36,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/v1", require("./routes/index"));
 
-// Start the server test
+// Start the server
 
 app.post("/upload", upload.single("file"), async (req, res) => {
   // console.log(req.file);

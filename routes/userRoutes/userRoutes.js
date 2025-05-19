@@ -23,6 +23,7 @@ const {
 } = require("../../controllers/historyControler/getHistory");
 const {
   uploadClothsByUser,
+  getUploadedClothsByUser,
 } = require("../../controllers/userControllers/uploadedCloths");
 
 const router = express.Router();
@@ -44,6 +45,7 @@ router.post(
   upload.any(),
   uploadClothsByUser
 );
+router.get("/my-cloths", userAuthenticate, getUploadedClothsByUser);
 
 router.get("/get-token", userAuthenticate, getUserToken);
 router.get("/history", userAuthenticate, getHistoryByUserId);
