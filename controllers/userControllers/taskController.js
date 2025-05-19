@@ -6,7 +6,7 @@ const axios = require("axios");
 const FormData = require("form-data");
 const fs = require("fs");
 const {
- 
+  uploadBase64ToS3Bucket,
   uploadToS3Bucket,
 } = require("../../config/S3ImageUpload");
 require("dotenv").config();
@@ -14,7 +14,8 @@ require("dotenv").config();
 const addTask = async (req, res) => {
   try {
     const {
-      
+      // cloth_image: cloth,
+      // human_image: human,
       date,
       title,
       note,

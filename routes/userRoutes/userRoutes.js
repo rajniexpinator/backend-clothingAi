@@ -21,6 +21,9 @@ const { getUserToken } = require("../../controllers/tokenController");
 const {
   getHistoryByUserId,
 } = require("../../controllers/historyControler/getHistory");
+const {
+  uploadClothsByUser,
+} = require("../../controllers/userControllers/uploadedCloths");
 
 const router = express.Router();
 
@@ -35,6 +38,12 @@ router.put("/change-password", userAuthenticate, ChangePassword);
 router.put("/image/:type", upload.any(), userAuthenticate, imageUpdate);
 router.get("/details", userAuthenticate, getUser);
 router.post("/forgot-password", forgotPassword);
+router.post(
+  "/upload-cloth",
+  userAuthenticate,
+  upload.any(),
+  uploadClothsByUser
+);
 
 router.get("/get-token", userAuthenticate, getUserToken);
 router.get("/history", userAuthenticate, getHistoryByUserId);
