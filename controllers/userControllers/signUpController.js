@@ -16,8 +16,8 @@ const transporter = nodemailer.createTransport(
   smtpTransport({
     service: "gmail",
     auth: {
-      user: process.env.NODEMAILER_EMAIL,
-      pass: process.env.NODEMAILER_PASSWORD, // Make sure this is an app password, not your actual Gmail password
+      user: "developer.expinator@gmail.com",
+      pass: "jjhj xmtn xevz bqpa",
     },
     tls: {
       rejectUnauthorized: false, // 👈 This bypasses the cert validation
@@ -155,16 +155,17 @@ async function verifyOtp(req, res) {
   }
 }
 async function imageUpdate(req, res) {
+  console.log(req.file, req.files);
   try {
     let keys = {};
     const userId = req.user.userId;
-    console.log(req.body);
-    if (!req.body.image) {
+    if (req.files.length === 0) {
       return res.status(400).send(response.error(400, "No file uploaded"));
     }
 
     if (req.params.type === "fittingroom") {
-      const img = await uploadBase64ToS3Bucket(req.body.image);
+      const img = await uploadToS3Bucket(req.files[0]);
+      // const img = await uploadBase64ToS3Bucket(req.body.image);
       keys.fittingRoomModel = img.url;
       const wardrobe = new Wardrobe({
         image: img.url,
@@ -172,27 +173,32 @@ async function imageUpdate(req, res) {
       });
       await wardrobe.save();
     } else if (req.params.type === "homemodel") {
-      const img = await uploadBase64ToS3Bucket(req.body.image);
+      // const img = await uploadBase64ToS3Bucket(req.body.image);
+      const img = await uploadToS3Bucket(req.files[0]);
       keys.homeModel = img.url;
     } else if (req.params.type === "profile") {
-      const img = await uploadBase64ToS3Bucket(req.body.image);
+      const img = await uploadToS3Bucket(req.files[0]);
+      // const img = await uploadBase64ToS3Bucket(req.body.image);
       keys.profilePicture = img.url;
     } else if (req.params.type === "wardrobe") {
-      const img = await uploadBase64ToS3Bucket(req.body.image);
+      const img = await uploadToS3Bucket(req.files[0]);
+      // const img = await uploadBase64ToS3Bucket(req.body.image);
       const wardrobe = new Wardrobe({
         image: img.url,
         userId: userId,
       });
       await wardrobe.save();
     } else if (req.params.type === "savedsuits") {
-      const img = await uploadBase64ToS3Bucket(req.body.image);
+      // const img = await uploadBase64ToS3Bucket(req.body.image);
+      const img = await uploadToS3Bucket(req.files[0]);
       const savedsuits = new SavedSuit({
         image: img.url,
         userId: userId,
       });
       await savedsuits.save();
     } else if (req.params.type === "shopingcart") {
-      const img = await uploadBase64ToS3Bucket(req.body.image);
+      // const img = await uploadBase64ToS3Bucket(req.body.image);
+      const img = await uploadToS3Bucket(req.files[0]);
       const savedsuits = new ShoppingCart({
         image: img.url,
         userId: userId,
@@ -201,7 +207,6 @@ async function imageUpdate(req, res) {
     } else {
       return res.status(400).send(response.error(400, "Invalid model type"));
     }
-    console.log(keys);
 
     const updatedUser = await UserModel.findByIdAndUpdate(
       req.user.userId,
