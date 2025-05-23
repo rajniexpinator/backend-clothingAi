@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 require("./config/dbConfig.js");
 const path = require("path");
+const Clarifai = require("clarifai");
 
 const app = express();
 app.use(express.json());
@@ -14,6 +15,7 @@ const {
   uploadToS3Bucket,
 } = require("./config/S3ImageUpload.js");
 const { default: axios } = require("axios");
+const classifyClothingImage = require("./servcices/classifyClothingImage.js");
 const port = process.env.PORT || 5050;
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -98,6 +100,19 @@ app.get("/search", async (req, res) => {
   }
 });
 
+// const imageUrl =
+//   "https://clothingaiimage.s3.eu-north-1.amazonaws.com/1747650084974_CjikY2gHPbcAAAAAB-u_Gg-0.png";
+// const { detectClothingLabels } = require("./config/detectClothingLabels.js");
+// detectClothingLabels(imageUrl);
+// .then((results) => {
+//   console.log("Clothing classification results:", results);
+//   results.forEach(({ name, confidence }) => {
+//     console.log(`${name}: ${Math.round(confidence * 100)}%`);
+//   });
+// })
+// .catch((error) => {
+//   console.error("Error:", error);
+// });
 app.listen(port, "0.0.0.0", () => {
   console.log(`Server running on port ${port}`);
 });

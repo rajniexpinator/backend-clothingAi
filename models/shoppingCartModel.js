@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const shoppingCartModel = new mongoose.Schema(
   {
+    stars: { type: Number, default: 5 },
+    title: { type: String, default: "" },
+    description: { type: String, default: "" },
+    tags: { type: [String], default: [] },
+    note: { type: String, default: "" },
     name: {
       type: String,
       trim: true,

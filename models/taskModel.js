@@ -5,10 +5,8 @@ const TaskSchema = new mongoose.Schema({
   date: { type: String, required: true },
   title: { type: String, required: true },
   note: { type: String },
-  tryOnImageUrl: { type: String ,required: true },
+  human_image: { type: String, required: true },
+  cloth_image: { type: String, required: true },
 });
 
 module.exports = mongoose.model("Task", TaskSchema);
-
-
-

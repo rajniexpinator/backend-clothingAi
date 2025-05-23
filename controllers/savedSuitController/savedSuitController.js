@@ -35,6 +35,41 @@ exports.createSavedSuit = async (req, res) => {
     res.status(500).json(response.error(500, "Error creating savedSuit", err));
   }
 };
+
+exports.createSavedSuitByURI = async (req, res) => {
+  try {
+    const { image } = req.body;
+    const userId = req.user.userId;
+
+    // Check if user exists
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const alreadyExists = await SavedSuit.findOne({
+      image: image,
+      userId: userId,
+    });
+    if (alreadyExists) {
+      return res
+        .status(400)
+        .json(response.error(400, "SavedSuit already exists"));
+    }
+    // Create new savedSuit and associate with user
+    const savedSuit = new SavedSuit({
+      image,
+      userId: userId,
+    });
+    await savedSuit.save();
+    res
+      .status(201)
+      .json(response.success(201, "SavedSuit created successfully", savedSuit));
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).json(response.error(500, "Error creating savedSuit", err));
+  }
+};
 // UPDATE: Edit a savedSuit entry by ID and userId
 // UPDATE: Edit a savedSuit entry by ID and userId (supports partial update)
 exports.editSavedSuit = async (req, res) => {

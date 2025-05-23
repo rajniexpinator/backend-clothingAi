@@ -11,57 +11,83 @@ const {
 } = require("../../config/S3ImageUpload");
 require("dotenv").config();
 
+// const addTask = async (req, res) => {
+//   try {
+//     const { date, title, note } = req.body;
+//     const userId = req.user.userId;
+//     const [human, cloth] = req.files;
+//     if (!date || !title) {
+//       return res.send(response.error(400, "Date and title are required"));
+//     }
+// // date format "2025-06-10"
+//     const human_image = await uploadToS3Bucket(human);
+//     const cloth_image = await uploadToS3Bucket(cloth);
+
+//     const task = new Task({
+//       userId,
+//       date,
+//       title,
+//       note,
+//       human_image: human_image.url,
+//       cloth_image: cloth_image.url,
+//     });
+//     await task.save();
+
+//     res.send(response.success(201, "Task added successfully"));
+//   } catch (error) {
+//     console.log(error);
+
+//     res
+//       .status(500)
+//       .send(response.error(500, "Internal Server Error", error.message));
+//   }
+// };
 const addTask = async (req, res) => {
   try {
-    const {
-      // cloth_image: cloth,
-      // human_image: human,
-      date,
-      title,
-      note,
-    } = req.body;
+    const { date, title, note } = req.body;
     const userId = req.user.userId;
-    console.log(req.files);
-    // const { human_image: human, cloth_image: cloth } = req.files;
     const [human, cloth] = req.files;
 
     if (!date || !title) {
       return res.send(response.error(400, "Date and title are required"));
     }
 
-    console.log(human, cloth);
-
+    // Upload images
     const human_image = await uploadToS3Bucket(human);
     const cloth_image = await uploadToS3Bucket(cloth);
-    // const human_image = await uploadBase64ToS3Bucket(human);
-    // const cloth_image = await uploadBase64ToS3Bucket(cloth);
 
-    const aiResponce = await imageTryOnService({
-      human_image: human_image.url,
-      cloth_image: cloth_image.url,
-    });
+    // Check if task already exists for this user and date
+    const existingTask = await Task.findOne({ userId, date });
 
-    let tryOnImageUrl = aiResponce?.data?.task_result?.images[0]?.url;
+    if (existingTask) {
+      // Update the existing task
+      existingTask.title = title;
+      existingTask.note = note;
+      existingTask.human_image = human_image.url;
+      existingTask.cloth_image = cloth_image.url;
+      await existingTask.save();
+      return res.send(response.success(200, "Task updated successfully"));
+    }
 
+    // Create a new task
     const task = new Task({
       userId,
       date,
       title,
       note,
-      tryOnImageUrl,
+      human_image: human_image.url,
+      cloth_image: cloth_image.url,
     });
     await task.save();
 
     res.send(response.success(201, "Task added successfully"));
   } catch (error) {
     console.log(error);
-
     res
       .status(500)
       .send(response.error(500, "Internal Server Error", error.message));
   }
 };
-
 const getUserTasks = async (req, res) => {
   try {
     const userId = req.user.userId;

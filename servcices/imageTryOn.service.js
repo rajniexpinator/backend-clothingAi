@@ -6,7 +6,7 @@ const AI_MODEL = All_Ai_Modals[process.env.AI_MODEL];
 const imageTryOnService = async (data) => {
   try {
     const aiRawData = await AI_MODEL(data);
-    const requestId =aiRawData?.data?.request_id;
+    const requestId = aiRawData?.data?.request_id;
 
     if (requestId) {
       return await getVirtualTryOnStatus(requestId);
@@ -18,7 +18,7 @@ const imageTryOnService = async (data) => {
   }
 };
 
-const getVirtualTryOnStatus = async (taskId, retries = 35 , delay = 3000) => {
+const getVirtualTryOnStatus = async (taskId, retries = 100, delay = 4000) => {
   try {
     console.log(`Checking status for Task ID: ${taskId}`);
 
@@ -34,7 +34,11 @@ const getVirtualTryOnStatus = async (taskId, retries = 35 , delay = 3000) => {
     );
 
     // Ensure response structure is correct
-    if (!response.data || !response.data.data || !response.data.data.task_result) {
+    if (
+      !response.data ||
+      !response.data.data ||
+      !response.data.data.task_result
+    ) {
       throw new Error("Invalid response structure");
     }
 
@@ -42,7 +46,7 @@ const getVirtualTryOnStatus = async (taskId, retries = 35 , delay = 3000) => {
     if (Object.keys(response.data.data.task_result).length === 0) {
       if (retries > 0) {
         console.log(`Retrying... Remaining attempts: ${retries}`);
-        await new Promise((res) => setTimeout(res, delay)); 
+        await new Promise((res) => setTimeout(res, delay));
         return getVirtualTryOnStatus(taskId, retries - 1, delay);
       } else {
         throw new Error("Max retries reached. Task result is still empty.");
@@ -51,7 +55,10 @@ const getVirtualTryOnStatus = async (taskId, retries = 35 , delay = 3000) => {
 
     return response.data;
   } catch (error) {
-    console.error("Error in getVirtualTryOnStatus:", error.response?.data || error.message);
+    console.error(
+      "Error in getVirtualTryOnStatus:",
+      error.response?.data || error.message
+    );
     throw error;
   }
 };

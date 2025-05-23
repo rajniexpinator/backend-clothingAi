@@ -26,6 +26,11 @@ const {
   getUploadedClothsByUser,
 } = require("../../controllers/userControllers/uploadedCloths");
 const historyModal = require("../../models/historyModal");
+const { default: mongoose } = require("mongoose");
+const {
+  createSavedSuitByURI,
+} = require("../../controllers/savedSuitController/savedSuitController");
+const response = require("../../helpers/response");
 
 const router = express.Router();
 
@@ -48,11 +53,13 @@ router.post(
 );
 router.get("/my-cloths", userAuthenticate, getUploadedClothsByUser);
 
+router.post("/save-image", userAuthenticate, createSavedSuitByURI);
 router.get("/get-token", userAuthenticate, getUserToken);
 router.get("/history", userAuthenticate, getHistoryByUserId);
-router.post("/history-delete", userAuthenticate, async () => {
+router.post("/history-delete", userAuthenticate, async (req, res) => {
   try {
     const { ids } = req.body;
+    console.log(ids);
 
     if (!Array.isArray(ids) || ids.length === 0) {
       return res.status(400).json(response.error(400, "Invalid input"));

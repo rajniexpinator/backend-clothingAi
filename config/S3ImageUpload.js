@@ -1,7 +1,8 @@
 const AWS = require("aws-sdk");
-const fs = require("fs");
-require("dotenv").config();
+const sharp = require("sharp");
 const { v4: uuidv4 } = require("uuid");
+require("dotenv").config();
+
 AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY,
   secretAccessKey: process.env.AWS_SECRET_KEY,
@@ -10,9 +11,9 @@ AWS.config.update({
 const s3 = new AWS.S3();
 
 /**
- * Uploads a disk-saved file (from multer) to S3 and returns the S3 object info.
- * @param {Object} file - Multer file object (with path, mimetype, originalname)
- * @returns {Promise<{ url: string, key: string }>}
+ * Compresses and uploads a multer file buffer to S3.
+ * @param {Object} file - Multer file object with `buffer`, `mimetype`, and `originalname`.
+ * @returns {Promise<{url: string, key: string}>}
  */
 const uploadToS3Bucket = async (file) => {
   try {
@@ -20,13 +21,20 @@ const uploadToS3Bucket = async (file) => {
       throw new Error("Invalid file input for S3 upload");
     }
 
-    // const fileBuffer = fs.readFileSync(file.path);
+    // Compress & resize image with sharp
+    const compressedBuffer = await sharp(file.buffer)
+      .resize({ width: 1024 }) // Resize to max width 1024px, maintain aspect ratio
+      .jpeg({ quality: 75 }) // Convert to JPEG and compress quality (you can tweak)
+      .toBuffer();
+
+    // Use uuid for unique file name + .jpeg extension (since we convert to jpeg)
+    const fileName = `${uuidv4()}.jpeg`;
 
     const params = {
       Bucket: process.env.AWS_BUCKET_NAME,
-      Key: `${Date.now()}_${file.originalname}`,
-      Body: file.buffer,
-      ContentType: file.mimetype,
+      Key: fileName,
+      Body: compressedBuffer,
+      ContentType: "image/jpeg",
     };
 
     const s3Response = await s3.upload(params).promise();

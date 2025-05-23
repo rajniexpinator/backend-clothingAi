@@ -69,6 +69,7 @@ exports.updateCartItem = async (req, res) => {
       { $set: updateFields },
       { new: true, runValidators: true }
     );
+    console.log(updateFields);
 
     if (!updatedCartItem) {
       return res.status(404).json(response.error(404, "Cart item not found"));

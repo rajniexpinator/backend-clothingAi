@@ -18,8 +18,8 @@ const userSchema = new Schema(
     isActive: { type: Boolean, default: true },
     isVerified: { type: Boolean, default: false },
     isPremium: { type: Boolean, default: false },
-    gender: { type: String, default: "Not specified" },
-    region: { type: String, default: "Not specified" },
+    gender: { type: String, default: "" },
+    region: { type: String, default: "" },
     birthday: { type: Date },
   },
   { timestamps: true }
