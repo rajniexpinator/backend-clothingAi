@@ -2,6 +2,7 @@ const { default: mongoose } = require("mongoose");
 const response = require("../../helpers/response");
 const UserModel = require("../../models/userModels");
 const Wardrobe = require("../../models/wardrobeModal");
+const { uploadToS3Bucket } = require("../../config/S3ImageUpload");
 
 // CREATE: Add a new wardrobe entry for a specific user
 exports.createWardrobe = async (req, res) => {
@@ -33,6 +34,46 @@ exports.createWardrobe = async (req, res) => {
     res.status(500).json(response.error(500, "Error creating wardrobe", err));
   }
 };
+exports.secondaryImageUpload = async (req, res) => {
+  try {
+    const { wardrobeId } = req.body;
+
+    // Validate wardrobeId
+    if (!wardrobeId || !mongoose.Types.ObjectId.isValid(wardrobeId)) {
+      return res.status(400).json(response.error(400, "Invalid wardrobe ID"));
+    }
+
+    // Check if wardrobe exists
+    const existingWardrobe = await Wardrobe.findById(wardrobeId);
+    if (!existingWardrobe) {
+      return res.status(404).json(response.error(404, "Wardrobe not found"));
+    }
+
+    // Validate image file
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json(response.error(400, "No image provided"));
+    }
+
+    // Upload image to S3
+    const uploadedImage = await uploadToS3Bucket(req.files[0]);
+
+    // Save to secondaryImage field
+    existingWardrobe.secondaryImage = uploadedImage.url;
+    await existingWardrobe.save();
+
+    res
+      .status(200)
+      .json(
+        response.success(200, "Secondary image uploaded", existingWardrobe)
+      );
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json(response.error(500, "Error uploading secondary image", error));
+  }
+};
+
 // UPDATE: Edit a wardrobe entry by ID and userId
 // UPDATE: Edit a wardrobe entry by ID and userId (supports partial update)
 exports.editWardrobe = async (req, res) => {

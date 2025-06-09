@@ -3,6 +3,7 @@ const {
   addTask,
   getUserTasks,
   taskByDate,
+  addTaskFromProductDetails,
 } = require("../../controllers/userControllers/taskController");
 const { userAuthenticate } = require("../../middlewares/userAuthenticate");
 const upload = require("../../middlewares/uploadMiddleware");
@@ -19,5 +20,10 @@ router.post(
 );
 router.get("/my-tasks", userAuthenticate, getUserTasks);
 router.post("/get-by-date", userAuthenticate, taskByDate);
+router.post(
+  "/add/product-details",
+  userAuthenticate,
+  addTaskFromProductDetails
+);
 
 module.exports = router;

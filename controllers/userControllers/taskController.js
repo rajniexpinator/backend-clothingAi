@@ -41,20 +41,55 @@ require("dotenv").config();
 //       .status(500)
 //       .send(response.error(500, "Internal Server Error", error.message));
 //   }
+
 // };
+
+const addTaskFromProductDetails = async (req, res) => {
+  try {
+    const { date, image } = req.body;
+    const userId = req.user.userId;
+    const existingTask = await Task.findOne({ userId, date });
+    if (existingTask) {
+      existingTask.human_image = image;
+      existingTask.cloth_image = image;
+
+      await existingTask.save();
+      console.log(req.body);
+
+      return res.send(response.success(200, "Task updated successfully"));
+    } else {
+      const task = new Task({
+        userId,
+        date,
+
+        human_image: image,
+        cloth_image: image,
+      });
+      await task.save();
+
+      res.send(response.success(201, "Task added successfully"));
+    }
+  } catch (error) {
+    res
+      .status(500)
+      .send(response.error(500, "Internal Server Error", error.message));
+  }
+};
+
 const addTask = async (req, res) => {
   try {
     const { date, title, note } = req.body;
     const userId = req.user.userId;
     const [human, cloth] = req.files;
+    console.log("dede");
 
-    if (!date || !title) {
+    if (!date) {
       return res.send(response.error(400, "Date and title are required"));
     }
 
     // Upload images
-    const human_image = await uploadToS3Bucket(human);
-    const cloth_image = await uploadToS3Bucket(cloth);
+    const human_image = human ? await uploadToS3Bucket(human) : "";
+    const cloth_image = cloth ? await uploadToS3Bucket(cloth) : "";
 
     // Check if task already exists for this user and date
     const existingTask = await Task.findOne({ userId, date });
@@ -128,4 +163,9 @@ const taskByDate = async (req, res) => {
   }
 };
 
-module.exports = { addTask, getUserTasks, taskByDate };
+module.exports = {
+  addTask,
+  getUserTasks,
+  taskByDate,
+  addTaskFromProductDetails,
+};

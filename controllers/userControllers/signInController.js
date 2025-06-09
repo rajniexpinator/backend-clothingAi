@@ -5,14 +5,13 @@ const jwt = require("jsonwebtoken");
 
 const authenticateUser = async (req, res) => {
   try {
-    console.log("hiii i am called");
     const { email, password } = req.body;
     if (!email || !password) {
       return res
         .status(400)
         .send(response.error(400, "Email and password are required"));
     }
-    const user = await UserModel.findOne({ email });
+    const user = await UserModel.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.status(401).send(response.error(401, "Invalid email"));
     }
@@ -130,8 +129,31 @@ const authenticateUseSocial = async (req, res) => {
   }
 };
 
+const deleteUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Check if the user exists
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.send(response.error(404, "User not found"));
+    }
+
+    // Delete the user
+    await UserModel.findByIdAndDelete(userId);
+
+    return res.send(response.success(200, "User deleted successfully"));
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    return res.send(
+      response.status(500).error(500, "Internal server error", error.message)
+    );
+  }
+};
+
 module.exports = {
   authenticateUser,
   getAllUsers,
+  deleteUser,
   authenticateUseSocial,
 };

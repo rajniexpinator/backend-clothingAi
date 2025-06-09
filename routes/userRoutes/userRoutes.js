@@ -56,6 +56,8 @@ router.get("/my-cloths", userAuthenticate, getUploadedClothsByUser);
 router.post("/save-image", userAuthenticate, createSavedSuitByURI);
 router.get("/get-token", userAuthenticate, getUserToken);
 router.get("/history", userAuthenticate, getHistoryByUserId);
+router.delete("/delete", userAuthenticate, UsersignIn.deleteUser);
+
 router.post("/history-delete", userAuthenticate, async (req, res) => {
   try {
     const { ids } = req.body;

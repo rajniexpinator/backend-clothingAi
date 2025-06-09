@@ -7,6 +7,7 @@ const wardrobeSchema = new mongoose.Schema(
     description: { type: String, default: "" },
     tags: { type: [String], default: [] },
     image: { type: String, default: "" },
+    secondaryImage: { type: String, default: "" },
     note: { type: String, default: "" },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Eshera reference to User
   },

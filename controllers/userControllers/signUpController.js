@@ -40,7 +40,9 @@ async function UsersignUp(req, res) {
   try {
     const otp = crypto.randomInt(1000, 9999); // Generate 4-digit OTP
     const otpExpiry = moment().add(5, "minutes").toDate(); // Set OTP expiration time
-    const existingUser = await UserModel.findOne({ email });
+    const existingUser = await UserModel.findOne({
+      email: email.toLowerCase(),
+    });
 
     if (existingUser && existingUser.isVerified) {
       return res.status(401).send(
@@ -83,7 +85,7 @@ async function UsersignUp(req, res) {
 
     const user = new UserModel({
       password: hash,
-      email,
+      email: email.toLowerCase(),
       otp,
       otpExpiry,
       isVerified: false,
@@ -94,7 +96,7 @@ async function UsersignUp(req, res) {
     // Send OTP to user's email
     const mailOptions = {
       from: "testexpinator@gmail.com",
-      to: email,
+      to: email.toLowerCase(),
       subject: "Your OTP Code",
       text: `Your OTP code is ${otp}. It will expire in 5 minutes.`,
     };
@@ -109,7 +111,7 @@ async function UsersignUp(req, res) {
 
     res.send(
       response.success(200, "OTP sent to email. Please verify your account.", {
-        email,
+        email: email.toLowerCase(),
       })
     );
   } catch (error) {
@@ -126,7 +128,7 @@ async function verifyOtp(req, res) {
   const { email, otp } = req.body;
 
   try {
-    const user = await UserModel.findOne({ email });
+    const user = await UserModel.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.status(400).send(response.error(400, "User not found.", {}));
     }
@@ -155,13 +157,13 @@ async function verifyOtp(req, res) {
   }
 }
 async function imageUpdate(req, res) {
-  console.log(req.file, req.files);
   try {
     let keys = {};
     const userId = req.user.userId;
     if (req.files.length === 0) {
       return res.status(400).send(response.error(400, "No file uploaded"));
     }
+    console.log(req.params.type);
 
     if (req.params.type === "fittingroom") {
       const img = await uploadToS3Bucket(req.files[0]);
@@ -292,7 +294,7 @@ async function resendOtp(req, res) {
   }
 
   try {
-    const user = await UserModel.findOne({ email });
+    const user = await UserModel.findOne({ email: email.toLowerCase() });
 
     if (!user) {
       return res.status(404).send(response.error(404, "User not found.", {}));
@@ -307,7 +309,7 @@ async function resendOtp(req, res) {
 
     const mailOptions = {
       from: "testexpinator@gmail.com",
-      to: email,
+      to: email.toLowerCase(),
       subject: "Resend OTP Code",
       text: `Your OTP code is ${otp}. It will expire in 5 minutes.`,
     };
@@ -322,7 +324,7 @@ async function resendOtp(req, res) {
 
     return res.send(
       response.success(200, "OTP resent to email.", {
-        email,
+        email: email.toLowerCase(),
         otpExpiry,
         isVerified: user.isVerified,
       })
@@ -354,7 +356,7 @@ async function forgotPassword(req, res) {
   }
 
   try {
-    const user = await UserModel.findOne({ email });
+    const user = await UserModel.findOne({ email: email.toLowerCase() });
 
     if (!user) {
       return res
@@ -367,7 +369,9 @@ async function forgotPassword(req, res) {
     await user.save();
 
     return res.send(
-      response.success(200, "Password updated successfully.", { email })
+      response.success(200, "Password updated successfully.", {
+        email: email.toLowerCase(),
+      })
     );
   } catch (error) {
     console.error("Forgot Password Error:", error);

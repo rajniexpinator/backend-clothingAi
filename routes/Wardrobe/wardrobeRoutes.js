@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 const wardrobeController = require("../../controllers/wardrobeController/wardrobeController");
 const { userAuthenticate } = require("../../middlewares/userAuthenticate");
-
+const upload = require("../../middlewares/uploadMiddleware");
 // CREATE: Add a new wardrobe entry for a specific user
 router.post("/", userAuthenticate, wardrobeController.createWardrobe);
 
@@ -16,6 +16,12 @@ router.get("/:id", userAuthenticate, wardrobeController.getWardrobeById);
 
 // DELETE: Delete a wardrobe entry by ID and userId
 router.delete("/:id", userAuthenticate, wardrobeController.deleteWardrobe);
+router.post(
+  "/upload-secondaryImage",
+  userAuthenticate,
+  upload.any(),
+  wardrobeController.secondaryImageUpload
+);
 router.post(
   "/delete-multiple",
   userAuthenticate,
