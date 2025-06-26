@@ -180,3 +180,19 @@ exports.deleteMultipleWardrobe = async (req, res) => {
     res.status(500).json(response.error(500, "Error deleting Wardrobe", err));
   }
 };
+
+exports.addTagMultipleWardrobe = async (req, res) => {
+  const { ids, tags } = req.body;
+  console.log(JSON.parse(ids), JSON.parse(tags));
+
+  try {
+    const wardrobe = await Wardrobe.updateMany(
+      { _id: { $in: JSON.parse(ids) } },
+      { $set: { tags: JSON.parse(tags) } }
+    );
+    res.status(200).json(response.success(200, "Wardrobe updated", wardrobe));
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(response.error(500, "Error updating wardrobe", err));
+  }
+};

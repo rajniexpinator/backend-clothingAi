@@ -153,6 +153,47 @@ exports.deleteSavedSuit = async (req, res) => {
   }
 };
 
+exports.createMultipleSavedSuits = async (req, res) => {
+  try {
+    // console.log(req.body);
+
+    const suits = JSON.parse(req.body.suits);
+    const userId = req.user.userId;
+
+    if (!Array.isArray(suits)) {
+      return res
+        .status(400)
+        .json(response.error(400, "Request body must be an array"));
+    }
+
+    // Validate user exists
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.status(404).json(response.error(404, "User not found"));
+    }
+
+    // Add userId to each suit and create
+    const suitsWithUserId = suits.map((suit) => ({ image: suit, userId }));
+    console.log(suitsWithUserId);
+
+    const createdSuits = await SavedSuit.insertMany(suitsWithUserId);
+
+    res
+      .status(201)
+      .json(
+        response.success(
+          201,
+          `${createdSuits.length} saved suits created successfully`,
+          createdSuits
+        )
+      );
+  } catch (err) {
+    res
+      .status(500)
+      .json(response.error(500, "Failed to create saved suits", err.message));
+  }
+};
+
 exports.deleteMultipleSavedSuits = async (req, res) => {
   try {
     const { ids } = req.body;

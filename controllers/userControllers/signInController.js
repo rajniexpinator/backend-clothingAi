@@ -131,7 +131,7 @@ const authenticateUseSocial = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const userId = req.user.userId;
 
     // Check if the user exists
     const user = await UserModel.findById(userId);

@@ -129,3 +129,18 @@ exports.deleteMultipleCartItems = async (req, res) => {
     res.status(500).json(response.error(500, "Error deleting cart items", err));
   }
 };
+
+exports.cartItemsCount = async (req, res) => {
+  try {
+    console.log("req?.user");
+    const userId = req?.user?.userId;
+    const count = await ShoppingCart.countDocuments({ userId });
+    res
+      .status(200)
+      .json(response.success(200, "Cart items count", { count: count }));
+  } catch (err) {
+    res
+      .status(500)
+      .json(response.error(500, "Error fetching cart items count", err));
+  }
+};

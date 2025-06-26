@@ -6,6 +6,11 @@ const { userAuthenticate } = require("../../middlewares/userAuthenticate");
 
 // CREATE: Add a newsavedSuit entry for a specific user
 router.post("/", userAuthenticate, savedSuitController.createSavedSuit);
+router.post(
+  "/multiple",
+  userAuthenticate,
+  savedSuitController.createMultipleSavedSuits
+);
 
 // READ: Get allsavedSuit entries for a specific user
 router.get("/", userAuthenticate, savedSuitController.getAllSavedSuits);

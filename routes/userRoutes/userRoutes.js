@@ -24,6 +24,7 @@ const {
 const {
   uploadClothsByUser,
   getUploadedClothsByUser,
+  deleteMultipleClothes,
 } = require("../../controllers/userControllers/uploadedCloths");
 const historyModal = require("../../models/historyModal");
 const { default: mongoose } = require("mongoose");
@@ -52,7 +53,11 @@ router.post(
   uploadClothsByUser
 );
 router.get("/my-cloths", userAuthenticate, getUploadedClothsByUser);
-
+router.post(
+  "/delete-multiple-clothes",
+  userAuthenticate,
+  deleteMultipleClothes
+);
 router.post("/save-image", userAuthenticate, createSavedSuitByURI);
 router.get("/get-token", userAuthenticate, getUserToken);
 router.get("/history", userAuthenticate, getHistoryByUserId);

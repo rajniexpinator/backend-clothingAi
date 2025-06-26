@@ -12,6 +12,9 @@ const {
 } = require("../../config/S3ImageUpload");
 const Wardrobe = require("../../models/wardrobeModal");
 const SavedSuit = require("../../models/savedSuitModel");
+const {
+  classifyClothingFromImage,
+} = require("../../servcices/classifyClothingImage");
 const transporter = nodemailer.createTransport(
   smtpTransport({
     service: "gmail",
@@ -157,6 +160,7 @@ async function verifyOtp(req, res) {
   }
 }
 async function imageUpdate(req, res) {
+  console.log("caleed");
   try {
     let keys = {};
     const userId = req.user.userId;
@@ -185,17 +189,21 @@ async function imageUpdate(req, res) {
     } else if (req.params.type === "wardrobe") {
       const img = await uploadToS3Bucket(req.files[0]);
       // const img = await uploadBase64ToS3Bucket(req.body.image);
+      let tags = await classifyClothingFromImage(img.url);
       const wardrobe = new Wardrobe({
         image: img.url,
         userId: userId,
+        tags: tags,
       });
       await wardrobe.save();
     } else if (req.params.type === "savedsuits") {
       // const img = await uploadBase64ToS3Bucket(req.body.image);
       const img = await uploadToS3Bucket(req.files[0]);
+      let tags = await classifyClothingFromImage(img.url);
       const savedsuits = new SavedSuit({
         image: img.url,
         userId: userId,
+        tags: tags,
       });
       await savedsuits.save();
     } else if (req.params.type === "shopingcart") {

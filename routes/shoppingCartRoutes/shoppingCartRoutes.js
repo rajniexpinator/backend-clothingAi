@@ -3,6 +3,7 @@ const router = express.Router();
 const productController = require("../../controllers/shoppingCart/shoppingCartController");
 const { userAuthenticate } = require("../../middlewares/userAuthenticate");
 
+router.get("/count", userAuthenticate, productController.cartItemsCount);
 router.post("/", userAuthenticate, productController.createCartItem);
 router.get("/", userAuthenticate, productController.getAllCartItems);
 router.get("/:id", userAuthenticate, productController.getCartItemById);

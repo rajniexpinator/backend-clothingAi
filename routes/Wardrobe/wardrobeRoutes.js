@@ -27,5 +27,10 @@ router.post(
   userAuthenticate,
   wardrobeController.deleteMultipleWardrobe
 );
+router.put(
+  "/update-tags-multiple",
+  userAuthenticate,
+  wardrobeController.addTagMultipleWardrobe
+);
 
 module.exports = router;
