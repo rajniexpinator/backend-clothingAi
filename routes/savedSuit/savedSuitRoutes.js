@@ -26,5 +26,16 @@ router.post(
   userAuthenticate,
   savedSuitController.deleteMultipleSavedSuits
 );
+router.put(
+  "/multiple/update-tags",
+  userAuthenticate,
+  savedSuitController.addTagMultipleSavedSuit
+);
+router.get(
+  "/get/directional-data/:id",
+  userAuthenticate,
+  savedSuitController.getDirectinalData
+);
+
 
 module.exports = router;

@@ -28,7 +28,7 @@ router.post(
   wardrobeController.deleteMultipleWardrobe
 );
 router.put(
-  "/update-tags-multiple",
+  "/multiple/update-tags",
   userAuthenticate,
   wardrobeController.addTagMultipleWardrobe
 );

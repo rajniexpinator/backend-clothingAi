@@ -80,6 +80,7 @@ exports.editWardrobe = async (req, res) => {
   try {
     const { id } = req.params; // Wardrobe ID
     const userId = req.user.userId;
+    
     const updateFields = req.body; // Contains only the fields to update
     console.log(updateFields);
 
@@ -159,7 +160,6 @@ exports.deleteWardrobe = async (req, res) => {
 exports.deleteMultipleWardrobe = async (req, res) => {
   try {
     const { ids } = req.body;
-    console.log(ids);
 
     // Validate input
     if (!Array.isArray(ids) || ids.length === 0) {
@@ -182,13 +182,13 @@ exports.deleteMultipleWardrobe = async (req, res) => {
 };
 
 exports.addTagMultipleWardrobe = async (req, res) => {
-  const { ids, tags } = req.body;
-  console.log(JSON.parse(ids), JSON.parse(tags));
+  // console.log("test",req.body.data);
+  const { ids, tags } = req.body.data;
 
   try {
     const wardrobe = await Wardrobe.updateMany(
-      { _id: { $in: JSON.parse(ids) } },
-      { $set: { tags: JSON.parse(tags) } }
+        { _id: { $in: JSON.parse(ids) } },
+  { $addToSet: { tags: { $each: JSON.parse(tags) } } }
     );
     res.status(200).json(response.success(200, "Wardrobe updated", wardrobe));
   } catch (err) {

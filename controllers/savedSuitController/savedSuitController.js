@@ -218,3 +218,90 @@ exports.deleteMultipleSavedSuits = async (req, res) => {
     res.status(500).json(response.error(500, "Error deleting savedSuits", err));
   }
 };
+
+exports.addTagMultipleSavedSuit = async (req, res) => {
+  // console.log("test",req.body.data);
+  const { ids, tags } = req.body.data;
+
+  try {
+    const SavedSuitData = await SavedSuit.updateMany(
+  { _id: { $in: JSON.parse(ids) } },
+  { $addToSet: { tags: { $each: JSON.parse(tags) } } }
+);
+
+    console.log(SavedSuitData);
+    
+    res.status(200).json(response.success(200, "SavedSuit updated", SavedSuitData));
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(response.error(500, "Error updating SavedSuit", err));
+  }
+};
+
+
+exports.getDirectinalData = async (req,res)=>{
+   try {
+    const referenceId = req.params.id;
+    console.log(referenceId);
+    
+    const direction = req.query.direction?.toLowerCase(); // 'pre' or 'post'
+    const limit = parseInt(req.query.limit) || 1;
+    const userId = req.user.userId; // optional filter by user
+
+    // Validate direction
+    if (!['pre', 'post'].includes(direction)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Invalid direction - must be 'pre' (previous) or 'post' (next)" 
+      });
+    }
+
+    // Find the reference suit
+    const referenceSuit = await SavedSuit.findById(referenceId);
+    if (!referenceSuit) {
+      return res.status(404).json({ 
+        success: false, 
+        error: "Saved suit not found" 
+      });
+    }
+
+    // Base query with optional user filter
+    const baseQuery = userId ? { userId } : {};
+
+    let neighbors;
+    if (direction === 'pre') {
+      // Find previous suits (created before the reference)
+      neighbors = await SavedSuit.find({
+        ...baseQuery,
+        createdAt: { $lt: referenceSuit.createdAt }
+      })
+      .sort({ createdAt: -1 }) // newest first
+      .limit(limit);
+    } else {
+      // Find next suits (created after the reference)
+      neighbors = await SavedSuit.find({
+        ...baseQuery,
+        createdAt: { $gt: referenceSuit.createdAt }
+      })
+      .sort({ createdAt: 1 }) // oldest first
+      .limit(limit);
+    }
+
+    res.json({
+      success: true,
+      data: {
+        suits: neighbors,
+        direction,
+        referenceId,
+        totalNeighbors: neighbors.length
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching neighboring suits:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: "Server error while fetching neighboring suits" 
+    });
+  }
+}
